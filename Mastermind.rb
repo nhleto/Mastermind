@@ -18,8 +18,7 @@ end
 
 
 class Game
-  attr_reader :board, :computer_selection
-  attr_accessor :points, :guesser, :attempts, :mode, :computer
+  attr_reader :board, :computer_selection, :attempts, :points, :guesser, :mode, :computer
   def initialize (player1, computer)
     @@player1=player1
     @@computer="Hal-9000"
@@ -31,6 +30,7 @@ class Game
     @computer_guesses = []
   end
 
+  
   def start
     puts "Welcome to Mastermind, would you like to make or break the code?
           1. Break the code
@@ -48,6 +48,7 @@ class Game
     puts"Welcome to mastermind, place your guesses\n\nThe options are:\n['R', 'O', 'Y', 'G', 'W', 'B']\n "
   end
 
+  private
   def computer_options
      @computer_selection = @@color_choices.sample(4)
   end
@@ -82,7 +83,7 @@ class Game
   end
 
   def guesser
-    while @attempts < 11
+    while @attempts <= 10
       puts "\nAttempt # #{attempts}"
       user_guess=gets.chomp
       points=Hash.new(0)
@@ -137,11 +138,10 @@ class CompMode < Game
     @reuse_colors = []
     @attempts = 1
     while @attempts < 11
+
       puts "Press ENTER to continue..."
-      gets 
-
-
-      sleep(1)
+      gets
+      @attempts += 1
       random_guess1 = @@color_choices.sample(4)
       verify_colors(random_guess1, @computer_guesses)
 
@@ -150,7 +150,7 @@ class CompMode < Game
       puts "Hal knows:"
       p verify_colors(random_guess1, @computer_guesses) unless nil
       puts "\nHal has tried #{@attempts} times to crack the code."
-      @attempts += 1
+
     end
     puts "\nAhh...\nToday we are safe."
   end
