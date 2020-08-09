@@ -1,3 +1,8 @@
+# module Variables
+#   @@computer_guesses = ['','','','']
+#   @@reuse_colors = []
+# end
+
 class Board
   attr_accessor :game_board
   def initialize
@@ -26,6 +31,7 @@ class Game
     @attempts = 1
     @mode = 0
     @@color_choices = ['R', 'O', 'Y', 'G', 'B', 'W']
+    @computer_guesses = []
   end
 
   def start
@@ -106,7 +112,6 @@ class Game
 end
 
 class CompMode < Game
-
   def self.intro
     puts "\nWelcome to Maker Mode\nTo begin, set 4 colors from the array below\nYour choices are:\n#{@@color_choices}"
     play_against_ai
@@ -124,45 +129,69 @@ class CompMode < Game
   end
 
   def self.program_ai(code)
-    #sleep(2) 
     puts "#\n\n#{@@computer} has 10 attempts to guess your code"
+    @computer_guesses = ['', '', '', '']
+    @reuse_colors = []
     @attempts = 1
+    while @attempts < 11
+      puts "Press SHIFT to continue..."
+      gets 
 
-    while @attempts < 10
-    points = Hash.new(0)
-    # sleep(0.1)
-    answer = []
-    random_guess1 = @@color_choices.sample(4)
 
-      random_guess1.each_with_index do |letter, i|
-        if letter.upcase == code[i]
-          points[:all_correct] += 1
-        end
-    
+      sleep(1)
+      puts "Hal guessed:"
+      random_guess1 = @@color_choices.sample(4)
+      p random_guess1
+      verify_colors(random_guess1, @computer_guesses)
+      puts "\nHe knows:"
+      p verify_colors(random_guess1, @computer_guesses)
+      puts "\n"
+      reuse_colors(random_guess1, @computer_guesses, @reuse_colors)
+      computer_check_combo(random_guess1, @computer_guesses, @reuse_colors)
 
-        if points[:all_correct] == 4
-          puts "#{@@computer} is the winner.\n\n\n#{@@computer}: I'm sorry #{@@player1}... "
-          break
-        end
-      end
-
-    @attempts += 1
-    puts "\nAttempts # #{@attempts}"
-    p random_guess1
-    p points unless points == {}
+      puts "\nHal has tried #{@attempts} times to crack the code."
+      @attempts += 1
     end
-    puts "\nNot so smart afer all, huh?"
+    puts "\nAhh...\nToday we are safe."
+  end
+
+  def self.computer_check_combo(random_guess1, computer_guesses, reuse_colors)
+    i = 0
+    until i == 4
+      if random_guess1 == @@code
+        random_guess1
+        puts "Sorry #{@@player1}. I'm going to have to terminate you..."
+        exit!
+      elsif computer_guesses == @@code
+        puts "Sorry #{@@player1}. I'm going to have to terminate you..."
+        computer_guesses
+        exit!
+      elsif random_guess1[i] == @@code[i]
+        computer_guesses[i] = @@code[i]
+        i += 1
+      elsif @@code.include?(random_guess1[i]) && computer_guesses != @@code[i]
+        reuse_colors.push(random_guess1[i])
+        i += 1
+      else
+        i += 1
+      end
+    end
   end
 end
 
+  def verify_colors(random_guess1, computer_guesses)
+    computer_guesses.each_with_index { |color, idx| random_guess1[idx] = color if %w(r o y g b w).include?(color)}
+  end
+
+  def reuse_colors(random_guess1, computer_guesses, reuse_colors)
+    computer_guesses.each_with_index do |color, index|
+      if random_guess1.include?(color) && random_guess1[index] != color
+        random_guess1[index] = reuse_colors[rand(0..reuse_colors.length)]
+      else
+        return
+      end
+    end
+  end
+
 mastermind=Game.new('Henry', 'Hal-9000')
 mastermind.start
-
-
-#  user_guess.split('').each_with_index do |letter, i|
-#         if letter.upcase == computer_selection[i]
-#           points[:all_correct] += 1
-#         elsif computer_selection.include?(letter.upcase)
-#           points[:color_exist] += 1
-#         end
-#       end
